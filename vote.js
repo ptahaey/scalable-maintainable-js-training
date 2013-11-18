@@ -35,7 +35,7 @@
         if(questionNumber < questions.length) {
             var currentQuestion = questions[questionNumber];
             var questionHeader = $('<div/>',{'class': 'questions'});
-            questionHeader.append($('<p/>',{'html': parseInt(questionNumber)+1+' from '+ questions.length}));
+            questionHeader.append($('<p/>',{'html': parseInt(questionNumber)+1+' of '+ questions.length}));
             questionHeader.append($('<p/>',{'html':currentQuestion.question}));
 
             var answersList = $('<ul/>');
