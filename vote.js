@@ -53,7 +53,7 @@
         }
         else
         {
-            $('html').results({'answersResult':result});
+            $('#results').results({'answersResult':result});
         }
     }
 
