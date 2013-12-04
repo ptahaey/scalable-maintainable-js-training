@@ -1,12 +1,9 @@
-(function ( $, window, document, undefined ) {
+( function ( $, window, document, undefined ) {
 
     var pluginName = "results",
         defaults = {
             propertyName: "value"
         };
-    var that; // copy of this
-    var resultsGrades; //grade
-
     function Plugin( element, options ) {
         this.element = element;
 
@@ -14,28 +11,29 @@
 
         this._defaults = defaults;
         this._name = pluginName;
-        that = this;
+        this.resultsGrades; //grade
+
         this.init(options.answersResult);
     }
 
     /**
      * Init and draw summary
      */
-    Plugin.prototype.init = function (answersResult) {
-        $.getJSON('results.json',function(data){
-            resultsGrades = data;
-            that.drawSummary(answersResult);
+    Plugin.prototype.init = function () {
+        var that = this;
+        $.getJSON(that.options.resultsUrl, function(data){
+            that.resultsGrades = data;
+            that.drawSummary(that.options.answersResult);
         });
     };
     /**
      * Draw summary
      */
     Plugin.prototype.drawSummary = function(totalPoints) {
-        var a = 1;
-        for (var i = 0; i < resultsGrades.length; i++) {
-            if(resultsGrades[i].to >= totalPoints) {
+        for (var i = 0; i < this.resultsGrades.length; i++) {
+            if(this.resultsGrades[i].to >= totalPoints) {
                 $('#results').append($('<p/>', {'html':"You have "+totalPoints+" points"}))
-                    .append($('<div/>', {'html':'Your status: '+resultsGrades[i].status})
+                    .append($('<div/>', {'html':'Your status: '+this.resultsGrades[i].status})
                 );
                 return;
             }

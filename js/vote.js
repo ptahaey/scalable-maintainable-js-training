@@ -2,11 +2,12 @@
  
     var pluginName = "vote",
         defaults = {
-            propertyName: "value"
+            propertyName: "value",
+            voteComplete: null
         };
     var questions = {}; //question array
     var result = 0; //total sum of points
-    var that; // copy of this
+
     function Plugin( element, options ) {
         this.element = element;
         
@@ -14,15 +15,16 @@
         
         this._defaults = defaults;
         this._name = pluginName;
-        that = this;
         this.init();
+
     }
 
     /**
      * Init and draw first question
      */
     Plugin.prototype.init = function () {
-        $.getJSON('questions.json',function(data){
+        var that = this;
+        $.getJSON(this.options.questionsUrl, function(data){
             questions = data;
             that.drawQuestion(0);
 	    });
@@ -32,6 +34,7 @@
      * @param questionNumber
      */
     Plugin.prototype.drawQuestion = function(questionNumber) {
+        var that = this;
         if(questionNumber < questions.length) {
             var currentQuestion = questions[questionNumber];
             var questionHeader = $('<div/>',{'class': 'questions'});
@@ -46,24 +49,21 @@
                       'question-number': questionNumber
                     }
                 );
-                singleAnswer.bind('click',Plugin.prototype.clickAnswer);
+                singleAnswer.bind('click',function() {
+                    result += parseInt($(this).attr('answer-point'));
+                    $(that.element).empty();
+                    that.drawQuestion(parseInt($(this).attr('question-number'))+1);
+                });
                 answersList.append(singleAnswer);
             }
-            $('#questions').append(questionHeader).append(answersList);
+            $(this.element).append(questionHeader).append(answersList);
         }
         else
         {
-            $('#results').results({'answersResult':result});
+            if(typeof this.options.voteComplete === "function"){
+                this.options.voteComplete({score: result, url: this.options.resultsUrl})
+            }
         }
-    }
-
-    /**
-     * bind click event
-     */
-    Plugin.prototype.clickAnswer = function() {
-        result += parseInt($(this).attr('answer-point'));
-        $('#questions').empty();
-        that.drawQuestion(parseInt($(this).attr('question-number'))+1);
     }
 
     $.fn[pluginName] = function ( options ) {
