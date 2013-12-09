@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>test page</title></head>
+<script src="1/bower_components/jquery/jquery.min.js"></script>
+<script src="js/vote_v3.js"></script>
+<script src="js/results_v3.js"></script>
+<body>
+<style>
+    li:hover {
+        cursor: pointer;
+    }
+</style>
+<div id="questions"></div>
+<div id="questions_2"></div>
+<div id="results"></div>
+<script type="text/javascript">
+    $(document).ready(function(){
+       voteFunction.init({
+            'voteComplete' : function(data){
+                resultFunction.init({
+                    answersResult: data.score, resultsUrl: data.url
+                }, $('#results'));
+            },
+            'questionsUrl' : "questions.json",
+            'resultsUrl' : "results.json"
+        }, $('#questions'));
+    });
+</script>
+</body>
+</html>
