@@ -1,24 +1,28 @@
-var voteFunction = function(){
-    var options =  {
+function voteFunction(){
+    var default_options =  {
         propertyName: 'value',
         voteComplete: null
     };
-    var element = {};
     var questions = {};
     var result =  0;
     return {
-        init: function( new_options, new_element) {
+	options : {},
 
-            element = new_element;
-            options = $.extend( {}, options, new_options);
+        init: function( new_options) {
+
+            this.options = $.extend({}, default_options, new_options);
+
             var that = this;
-            $.getJSON(options.questionsUrl, function(data){
+
+            $.getJSON(this.options.questionsUrl, function(data){
                 questions = data;
                 that.drawQuestion(0);
             });
+
         },
         drawQuestion: function(questionNumber) {
             var that = this;
+
             if(questionNumber < questions.length) {
                 var currentQuestion = questions[questionNumber];
                 var questionHeader = $('<div/>',{'class': 'questions'});
@@ -35,19 +39,19 @@ var voteFunction = function(){
                     );
                     singleAnswer.bind('click',function() {
                         result += parseInt($(this).attr('answer-point'));
-                        $(element).empty();
+                        $(that.options.element).empty();
                         that.drawQuestion(parseInt($(this).attr('question-number'))+1);
                     });
                     answersList.append(singleAnswer);
                 }
-                $(element).append(questionHeader).append(answersList);
+                $(that.options.element).append(questionHeader).append(answersList);
             }
             else
             {
-                if(typeof options.voteComplete === "function"){
-                    options.voteComplete({score: result, url: options.resultsUrl})
+                if(typeof this.options.voteComplete === "function"){
+                    this.options.voteComplete({score: result, url: this.options.resultsUrl})
                 }
             }
         }
     }
-}();
+};

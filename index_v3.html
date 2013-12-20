@@ -15,15 +15,30 @@
 <div id="results"></div>
 <script type="text/javascript">
     $(document).ready(function(){
-       voteFunction.init({
+       new voteFunction().init({
             'voteComplete' : function(data){
-                resultFunction.init({
-                    answersResult: data.score, resultsUrl: data.url
-                }, $('#results'));
+                new resultFunction().init({
+                    answersResult: data.score, 
+		    resultsUrl: data.url,
+                    element: $('#results')
+		});
             },
             'questionsUrl' : "questions.json",
-            'resultsUrl' : "results.json"
-        }, $('#questions'));
+            'resultsUrl' : "results.json",
+            'element': $('#questions')
+	});
+
+	new voteFunction().init({
+                'voteComplete': function(data){
+                    alert(data.score);
+                },
+                'questionsUrl' : "questions.json",
+                'resultsUrl' : "results.json", 
+		'element': $('#questions_2')
+	});
+
+
+		
     });
 </script>
 </body>
