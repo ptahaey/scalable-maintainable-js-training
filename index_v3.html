@@ -4,6 +4,7 @@
 <script src="1/bower_components/jquery/jquery.min.js"></script>
 <script src="js/vote_v3.js"></script>
 <script src="js/results_v3.js"></script>
+<script src="js/main_v3.js"></script>
 <body>
 <style>
     li:hover {
@@ -13,33 +14,5 @@
 <div id="questions"></div>
 <div id="questions_2"></div>
 <div id="results"></div>
-<script type="text/javascript">
-    $(document).ready(function(){
-       new voteFunction().init({
-            'voteComplete' : function(data){
-                new resultFunction().init({
-                    answersResult: data.score, 
-		    resultsUrl: data.url,
-                    element: $('#results')
-		});
-            },
-            'questionsUrl' : "questions.json",
-            'resultsUrl' : "results.json",
-            'element': $('#questions')
-	});
-
-	new voteFunction().init({
-                'voteComplete': function(data){
-                    alert(data.score);
-                },
-                'questionsUrl' : "questions.json",
-                'resultsUrl' : "results.json", 
-		'element': $('#questions_2')
-	});
-
-
-		
-    });
-</script>
 </body>
 </html>

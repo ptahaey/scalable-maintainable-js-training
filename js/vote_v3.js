@@ -1,28 +1,27 @@
-function voteFunction(){
+var APP = APP || {};
+
+APP.votePlugin = (function (APP, $, undefined ){
+
     var default_options =  {
         propertyName: 'value',
         voteComplete: null
     };
     var questions = {};
     var result =  0;
-    return {
-	options : {},
+    return function(inputOptions){
+	    var options = {};
 
-        init: function( new_options) {
+        var init =  function( new_options) {
 
-            this.options = $.extend({}, default_options, new_options);
+            options = $.extend({}, default_options, new_options);
 
-            var that = this;
-
-            $.getJSON(this.options.questionsUrl, function(data){
+            $.getJSON(options.questionsUrl, function(data){
                 questions = data;
-                that.drawQuestion(0);
+                drawQuestion(0);
             });
 
-        },
-        drawQuestion: function(questionNumber) {
-            var that = this;
-
+        };
+        var drawQuestion = function(questionNumber) {
             if(questionNumber < questions.length) {
                 var currentQuestion = questions[questionNumber];
                 var questionHeader = $('<div/>',{'class': 'questions'});
@@ -39,19 +38,21 @@ function voteFunction(){
                     );
                     singleAnswer.bind('click',function() {
                         result += parseInt($(this).attr('answer-point'));
-                        $(that.options.element).empty();
-                        that.drawQuestion(parseInt($(this).attr('question-number'))+1);
+                        $(options.element).empty();
+                        drawQuestion(parseInt($(this).attr('question-number'))+1);
                     });
                     answersList.append(singleAnswer);
                 }
-                $(that.options.element).append(questionHeader).append(answersList);
+                $(options.element).append(questionHeader).append(answersList);
             }
             else
             {
-                if(typeof this.options.voteComplete === "function"){
-                    this.options.voteComplete({score: result, url: this.options.resultsUrl})
+                if(typeof options.voteComplete === "function"){
+                    options.voteComplete({score: result, url: options.resultsUrl})
                 }
             }
-        }
+        };
+        init(inputOptions);
+        return this;
     }
-};
+}(APP, jQuery));
