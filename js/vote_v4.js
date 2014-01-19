@@ -1,4 +1,4 @@
-define(['jquery', 'event_bus'], function($, eventBus){
+define(['jquery', 'event_bus', 'mustache'], function($, eventBus, mustache){
 
     var default_options =  {
         propertyName: 'value',
@@ -9,7 +9,14 @@ define(['jquery', 'event_bus'], function($, eventBus){
         var questions = {};
         var result =  0;
 	    var options = {};
-
+        var html = "";
+        var questionHeaderTemplate =
+            '<div class="questions">' +
+                '<p>{{questionNumber}} of {{questionsTotal}}</p>'+
+                '<p>{{currentQuestion}}</p>'
+            '</div>';
+        var singleAnswerTemplate =
+            '<li answer-point="{{point}}" question-number="{{questionNumber}}">{{answerBody}}</li>';
         this.voteComplete = function(voteOptions)
         {
             require([voteOptions.callbackMethod], function(resultsPlugin) {
@@ -37,17 +44,21 @@ define(['jquery', 'event_bus'], function($, eventBus){
         var drawQuestion = function(questionNumber) {
             if(questionNumber < questions.length) {
                 var currentQuestion = questions[questionNumber];
-                var questionHeader = $('<div/>',{'class': 'questions'});
-                questionHeader.append($('<p/>',{'html': parseInt(questionNumber)+1+' of '+ questions.length}));
-                questionHeader.append($('<p/>',{'html':currentQuestion.question}));
+                html = mustache.to_html(questionHeaderTemplate, {
+                    questionNumber: parseInt(questionNumber)+1,
+                    questionsTotal: questions.length,
+                    currentQuestion: currentQuestion.question
+                });
 
-                var answersList = $('<ul/>');
+                var answersList = "<ul>";
                 for (var i = 0; i < currentQuestion.answers.length; i++){
-                    var singleAnswer = drawSingleAnswerLi(currentQuestion, i, questionNumber);
-                    eventBind(singleAnswer, options, drawQuestion);
-                    answersList.append(singleAnswer);
+                    answersList += drawSingleAnswerLi(currentQuestion, i, questionNumber);
                 }
-                $(options.element).append(questionHeader).append(answersList);
+                answersList += "</ul>";
+                html += answersList;
+                $(options.element).html(html);
+
+                eventBind(options, drawQuestion);
             }
             else
             {
@@ -68,21 +79,22 @@ define(['jquery', 'event_bus'], function($, eventBus){
         };
 
         var drawSingleAnswerLi = function(currQuestion, i, questionNumber) {
-            return $('<li/>',
-                {'answer-point':currQuestion.points[i],
-                    'html':currQuestion.answers[i],
-                    'question-number': questionNumber
-                }
-            );
+            return mustache.to_html(singleAnswerTemplate,{
+                point: currQuestion.points[i],
+                questionNumber: questionNumber,
+                answerBody: currQuestion.answers[i]
+            })
         };
 
-        var eventBind = function (element, options, callback) {
-            element.bind('click',function() {
-                result += parseInt($(this).attr('answer-point'));
-                $(options.element).empty();
-                if(typeof callback === 'function') {
-                    callback(parseInt($(this).attr('question-number'))+1);
-                }
+        var eventBind = function (options, callback) {
+            $('li').each(function(){
+                $(this).bind('click',function() {
+                    result += parseInt($(this).attr('answer-point'));
+                    $(options.element).empty();
+                    if(typeof callback === 'function') {
+                        callback(parseInt($(this).attr('question-number'))+1);
+                    }
+                });
             });
         };
 
