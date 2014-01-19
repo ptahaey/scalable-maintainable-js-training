@@ -5,16 +5,21 @@ APP.resultPlugin = (function(APP, $, undefined){
         resultsGrades: {}
     };
     return function(inputOptions){
-	var options = {};
+        var options = {};
 
         var init = function( new_options) {
             options = $.extend( {}, default_options, new_options );
-            $.getJSON(options.resultsUrl, function(data){
-                options.resultsGrades = data;
-                drawSummary(options.answersResult);
-            });
+            fetchData();
         };
 
+        var fetchData = function()
+        {
+            $.getJSON(options.resultsUrl, function(data){
+                options.resultsGrades = data;
+                drawSummary(options.answersResult)
+            });
+
+        };
         var drawSummary = function(totalPoints) {
             for (var i = 0; i < options.resultsGrades.length; i++) {
                 if(options.resultsGrades[i].to >= totalPoints) {

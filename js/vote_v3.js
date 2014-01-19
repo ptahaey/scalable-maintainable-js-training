@@ -6,21 +6,33 @@ APP.votePlugin = (function (APP, $, undefined ){
         propertyName: 'value',
         voteComplete: null
     };
-    var questions = {};
-    var result =  0;
-    return function(inputOptions){
+
+return function(inputOptions){
+        var questions = {};
+        var result =  0;
 	    var options = {};
 
+        this.voteComplete = function(voteOptions)
+        {
+            if(typeof voteOptions.callbackMethod === "function")
+            {
+                voteOptions.callbackMethod(voteOptions.callbackOptions);
+            }
+        };
+
         var init =  function( new_options) {
-
             options = $.extend({}, default_options, new_options);
+            fetchData();
+        };
 
+        var fetchData = function() {
             $.getJSON(options.questionsUrl, function(data){
                 questions = data;
                 drawQuestion(0);
             });
 
-        };
+        }
+
         var drawQuestion = function(questionNumber) {
             if(questionNumber < questions.length) {
                 var currentQuestion = questions[questionNumber];
@@ -30,28 +42,45 @@ APP.votePlugin = (function (APP, $, undefined ){
 
                 var answersList = $('<ul/>');
                 for (var i = 0; i < currentQuestion.answers.length; i++){
-                    var singleAnswer = $('<li/>',
-                        {'answer-point':currentQuestion.points[i],
-                            'html':currentQuestion.answers[i],
-                            'question-number': questionNumber
-                        }
-                    );
-                    singleAnswer.bind('click',function() {
-                        result += parseInt($(this).attr('answer-point'));
-                        $(options.element).empty();
-                        drawQuestion(parseInt($(this).attr('question-number'))+1);
-                    });
+                    var singleAnswer = drawSingleAnswerLi(currentQuestion, i, questionNumber);
+                    eventBind(singleAnswer, options, drawQuestion);
                     answersList.append(singleAnswer);
                 }
                 $(options.element).append(questionHeader).append(answersList);
             }
             else
             {
-                if(typeof options.voteComplete === "function"){
-                    options.voteComplete({score: result, url: options.resultsUrl})
-                }
+                var callbackOpt = $.extend(
+                    {},{
+                        answersResult: result,
+                    },options.callbackOptions)
+                APP.EventBus.trigger('voteComplete',
+                    {
+                        callbackOptions: callbackOpt,
+                        callbackMethod: options.callbackMethod
+                    });
             }
         };
+
+        var drawSingleAnswerLi = function(currQuestion, i, questionNumber) {
+            return $('<li/>',
+                {'answer-point':currQuestion.points[i],
+                    'html':currQuestion.answers[i],
+                    'question-number': questionNumber
+                }
+            );
+        };
+
+        var eventBind = function (element, options, callback) {
+            element.bind('click',function() {
+                result += parseInt($(this).attr('answer-point'));
+                $(options.element).empty();
+                if(typeof callback === 'function') {
+                    callback(parseInt($(this).attr('question-number'))+1);
+                }
+            });
+        };
+
         init(inputOptions);
         return this;
     }
