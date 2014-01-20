@@ -87,7 +87,7 @@ define(['jquery', 'event_bus', 'mustache'], function($, eventBus, mustache){
         };
 
         var eventBind = function (options, callback) {
-            $('li').each(function(){
+            $(options.element).find('li').each(function(){
                 $(this).bind('click',function() {
                     result += parseInt($(this).attr('answer-point'));
                     $(options.element).empty();
