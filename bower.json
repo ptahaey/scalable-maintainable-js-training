@@ -1,0 +1,14 @@
+{
+  "name": "js traning",
+  "version": "1.0.0",
+  "dependencies": {
+	"backbone": "*",
+	"jquery": "*",
+	"underscore": "*",
+	"yepnope": "*",
+	"modernizr": "*",
+	"requirejs": "*",
+	"mustache": "*",
+	"polyfill": "*"
+  }
+}
